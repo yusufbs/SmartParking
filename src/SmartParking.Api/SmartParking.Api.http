@@ -1,0 +1,156 @@
+@baseUrl = http://localhost:5000
+
+### 1. Liveness & Readiness Health Checks + Prometheus Metrics
+GET {{baseUrl}}/health/live
+Accept: application/json
+
+###
+GET {{baseUrl}}/health/ready
+Accept: application/json
+
+###
+GET {{baseUrl}}/metrics
+
+### 2. Clients
+GET {{baseUrl}}/api/SmartParking/GetAllClients
+Accept: application/json
+
+###
+POST {{baseUrl}}/api/SmartParking/AddClient
+Content-Type: application/json
+
+{
+  "clientId": 0,
+  "clientName": "Apex Smart Mobility",
+  "businessName": "Apex Parking Solutions Pvt Ltd",
+  "contactPerson": "Rohan Verma",
+  "contactNo": "9876500001",
+  "altContactNo": "9876500002",
+  "email": "contact@apexparking.in",
+  "createdDate": "2026-10-11T00:00:00Z",
+  "logo": "https://apexparking.in/logo.png"
+}
+
+### 3. Users & Auth
+POST {{baseUrl}}/api/SmartParking/register
+Content-Type: application/json
+
+{
+  "userId": 0,
+  "emailId": "operator@apexparking.in",
+  "password": "StrongPassword!123",
+  "fullName": "Kiran Operator",
+  "mobileNo": "9876512345",
+  "clientId": 1
+}
+
+###
+POST {{baseUrl}}/api/SmartParking/login
+Content-Type: application/json
+
+{
+  "emailId": "operator@apexparking.in",
+  "password": "StrongPassword!123"
+}
+
+###
+GET {{baseUrl}}/api/SmartParking/getAllUsersByClientId?clientId=1
+Accept: application/json
+
+### 4. Sites & Buildings
+POST {{baseUrl}}/api/SmartParking/AddClientSite
+Content-Type: application/json
+
+{
+  "siteId": 0,
+  "clientId": 1,
+  "siteName": "Phoenix Marketcity",
+  "siteCity": "Pune",
+  "siteAddress": "Viman Nagar",
+  "sitePinCode": "411014",
+  "totalBuildings": 2,
+  "createdDate": "2026-10-11T00:00:00Z",
+  "getVBuildingss": [
+    {
+      "buildingId": 0,
+      "siteId": 0,
+      "buildingName": "Tower East",
+      "buildingManagerName": "Suresh Raina",
+      "contactNo": "9800011111"
+    },
+    {
+      "buildingId": 0,
+      "siteId": 0,
+      "buildingName": "Tower West",
+      "buildingManagerName": "Deepak Chahar",
+      "contactNo": "9800022222"
+    }
+  ]
+}
+
+###
+GET {{baseUrl}}/api/SmartParking/GetAllSites?clientid=1
+Accept: application/json
+
+### 5. Floors
+POST {{baseUrl}}/api/SmartParking/AddFloor
+Content-Type: application/json
+
+{
+  "floorId": 0,
+  "buildingId": 1,
+  "floorNo": "B-1",
+  "isOperational": true,
+  "totalParkingSpots": 30
+}
+
+###
+GET {{baseUrl}}/api/SmartParking/GetAllFloor
+Accept: application/json
+
+### 6. Parking Operations & Admin Search
+POST {{baseUrl}}/api/SmartParking/AddParking
+Content-Type: application/json
+
+{
+  "parkId": 0,
+  "floorId": 1,
+  "custName": "Rahul Dravid",
+  "custMobileNo": "9900112233",
+  "vehicleNo": "KA-01-MG-9999",
+  "parkDate": "2026-10-11T08:30:00Z",
+  "parkSpotNo": 5,
+  "inTime": "2026-10-11T08:30:00Z",
+  "outTime": null,
+  "amount": 50,
+  "extraCharge": 0,
+  "parkingNo": "PK-5001"
+}
+
+###
+GET {{baseUrl}}/api/SmartParking/GetAllActiveParking
+Accept: application/json
+
+###
+POST {{baseUrl}}/api/SmartParking/MarExit
+Content-Type: application/json
+
+{
+  "parkId": 1,
+  "outTime": "2026-10-11T10:30:00Z",
+  "extraCharge": 10
+}
+
+###
+POST {{baseUrl}}/api/SmartParking/GetAdminAllParkings
+Content-Type: application/json
+
+{
+  "clientId": 1,
+  "siteId": 0,
+  "buildingId": 0,
+  "floorId": 0,
+  "fromDate": null,
+  "toDate": null,
+  "vehicleNo": "KA"
+}
