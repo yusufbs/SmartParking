@@ -193,7 +193,7 @@ builder.Services.AddHealthChecks()
         tags: ["ready", "db"]);
 
 // ============================================================================
-// 9. CORS & .NET 10 OpenAPI + Scalar API Reference
+// 9. CORS & .NET 10 OpenAPI + Swagger UI + Scalar API Reference
 // ============================================================================
 builder.Services.AddCors(options =>
 {
@@ -201,7 +201,18 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi("v1", options =>
+{
+    options.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "Smart Parking Web API (.NET 10)";
+        document.Info.Version = "v1.0";
+        document.Info.Description =
+            "Production-grade Smart Parking REST API built with .NET 10 and SQL Server. " +
+            "Includes Health Checks, OpenTelemetry, Rate Limiting, API Versioning, HybridCache, Feature Management, and Polly v8 Resilience.";
+        return Task.CompletedTask;
+    });
+});
 
 var app = builder.Build();
 
@@ -215,7 +226,23 @@ app.UseCors();
 app.UseRateLimiter();
 app.UseOutputCache();
 
+// Expose OpenAPI JSON at both /openapi/v1.json and /swagger/v1/swagger.json
 app.MapOpenApi();
+app.MapOpenApi("/swagger/{documentName}/swagger.json");
+
+// Interactive Swagger UI (/swagger)
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "Smart Parking API v1");
+    options.RoutePrefix = "swagger";
+    options.DocumentTitle = "Smart Parking API (.NET 10) - Swagger UI";
+    options.DisplayRequestDuration();
+    options.EnableDeepLinking();
+    options.EnableFilter();
+    options.EnableTryItOutByDefault();
+});
+
+// Interactive Scalar API Reference (/scalar/v1)
 app.MapScalarApiReference(options =>
 {
     options.WithTitle("Smart Parking API (.NET 10)");

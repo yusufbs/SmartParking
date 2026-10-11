@@ -84,6 +84,8 @@ dotnet run --project "C:\Projects\SmartParking\src\SmartParking.Api\SmartParking
 
 | Endpoint | Description |
 | :--- | :--- |
+| `GET /swagger` | Interactive **Swagger UI** (with Try-It-Out, filter search, and request duration) |
+| `GET /swagger/v1/swagger.json` | Swagger / OpenAPI v1 JSON Specification |
 | `GET /scalar/v1` | Interactive **Scalar** API Documentation & Tester |
 | `GET /openapi/v1.json` | .NET 10 OpenAPI v1 Specification |
 | `GET /health/live` | Liveness probe (process responsiveness) |
