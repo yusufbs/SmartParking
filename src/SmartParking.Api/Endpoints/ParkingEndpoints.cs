@@ -37,7 +37,7 @@ public static class ParkingEndpoints
             ClientName = p.Floor.Building.Site.Client.ClientName
         });
 
-    public static RouteGroupBuilder MapParkingEndpoints(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapParkingEndpoints(this RouteGroupBuilder group, string namePrefix = "")
     {
         // 24. GET /api/SmartParking/GetAllParking
         group.MapGet("/GetAllParking", async (
@@ -52,7 +52,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(parkings));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllParking")
+        .WithName($"{namePrefix}GetAllParking")
         .WithSummary("Get all parking tickets joined with hierarchy details");
 
         // 25. GET /api/SmartParking/GetAllActiveParking
@@ -84,7 +84,7 @@ public static class ParkingEndpoints
         })
         .CacheOutput(p => p.Expire(TimeSpan.FromSeconds(15)).Tag(CacheTags.ParkingsActive))
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllActiveParking")
+        .WithName($"{namePrefix}GetAllActiveParking")
         .WithSummary("Get all currently active parking sessions (OutTime IS NULL)");
 
         // 26. GET /api/SmartParking/GetAllParkingByClientId
@@ -102,7 +102,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(parkings));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllParkingByClientId")
+        .WithName($"{namePrefix}GetAllParkingByClientId")
         .WithSummary("Get all parking sessions for a specific clientId");
 
         // 27. GET /api/SmartParking/GetAllParkingBySite
@@ -120,7 +120,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(parkings));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllParkingBySite")
+        .WithName($"{namePrefix}GetAllParkingBySite")
         .WithSummary("Get all parking sessions for a specific siteId");
 
         // 28. GET /api/SmartParking/GetAllParkingByBuilding
@@ -138,7 +138,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(parkings));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllParkingByBuilding")
+        .WithName($"{namePrefix}GetAllParkingByBuilding")
         .WithSummary("Get all parking sessions for a specific buildingId");
 
         // 29. GET /api/SmartParking/GetAllParkingByFloor
@@ -156,7 +156,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(parkings));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllParkingByFloor")
+        .WithName($"{namePrefix}GetAllParkingByFloor")
         .WithSummary("Get all parking sessions for a specific floorId");
 
         // 30. POST /api/SmartParking/AddParking
@@ -279,7 +279,7 @@ public static class ParkingEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetVParkings>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("AddParking")
+        .WithName($"{namePrefix}AddParking")
         .WithSummary("Check in a vehicle to a parking spot");
 
         // 31. POST /api/SmartParking/MarExit (plus /MarkExit alias)
@@ -328,13 +328,13 @@ public static class ParkingEndpoints
         group.MapPost("/MarExit", handleExit)
             .AddEndpointFilter<ValidationFilter<ExitParking>>()
             .RequireRateLimiting(RateLimitPolicies.Write)
-            .WithName("MarExit")
+            .WithName($"{namePrefix}MarExit")
             .WithSummary("Mark vehicle exit and release parking spot (official spec route)");
 
         group.MapPost("/MarkExit", handleExit)
             .AddEndpointFilter<ValidationFilter<ExitParking>>()
             .RequireRateLimiting(RateLimitPolicies.Write)
-            .WithName("MarkExit")
+            .WithName($"{namePrefix}MarkExit")
             .WithSummary("Alias for /MarExit");
 
         // 32. POST /api/SmartParking/DeleteParking
@@ -354,7 +354,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(null, "Parking record deleted successfully"));
         })
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("DeleteParking")
+        .WithName($"{namePrefix}DeleteParking")
         .WithSummary("Delete a parking ticket by parkId");
 
         // 33. POST /api/SmartParking/GetAdminAllParkings
@@ -416,7 +416,7 @@ public static class ParkingEndpoints
             return Results.Ok(ApiResponse.Success(results));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAdminAllParkings")
+        .WithName($"{namePrefix}GetAdminAllParkings")
         .WithSummary("Admin dynamic multi-criteria search across all parkings");
 
         return group;

@@ -13,7 +13,7 @@ namespace SmartParking.Api.Endpoints;
 
 public static class UserEndpoints
 {
-    public static RouteGroupBuilder MapUserEndpoints(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapUserEndpoints(this RouteGroupBuilder group, string namePrefix = "")
     {
         // 1. GET /api/SmartParking/getAllUsersByClientId
         group.MapGet("/getAllUsersByClientId", async (
@@ -42,7 +42,7 @@ public static class UserEndpoints
             return Results.Ok(users);
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllUsersByClientId")
+        .WithName($"{namePrefix}GetAllUsersByClientId")
         .WithSummary("Get all users filtered by clientId");
 
         // 2. GET /api/SmartParking/getUserById
@@ -71,7 +71,7 @@ public static class UserEndpoints
             return Results.Ok(user);
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetUserById")
+        .WithName($"{namePrefix}GetUserById")
         .WithSummary("Get a single user by userId");
 
         // 3. POST /api/SmartParking/register
@@ -122,7 +122,7 @@ public static class UserEndpoints
         })
         .AddEndpointFilter<ValidationFilter<UserMasterViewClient>>()
         .RequireRateLimiting(RateLimitPolicies.Auth)
-        .WithName("RegisterUser")
+        .WithName($"{namePrefix}RegisterUser")
         .WithSummary("Register a new user account");
 
         // 4. POST /api/SmartParking/login
@@ -167,7 +167,7 @@ public static class UserEndpoints
         })
         .AddEndpointFilter<ValidationFilter<UserLogin>>()
         .RequireRateLimiting(RateLimitPolicies.Auth)
-        .WithName("LoginUser")
+        .WithName($"{namePrefix}LoginUser")
         .WithSummary("Authenticate user credentials");
 
         // 5. PUT /api/SmartParking/updateUser
@@ -208,7 +208,7 @@ public static class UserEndpoints
             }, "User updated successfully"));
         })
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("UpdateUser")
+        .WithName($"{namePrefix}UpdateUser")
         .WithSummary("Update an existing user");
 
         // 6. DELETE /api/SmartParking/deleteUserById
@@ -226,7 +226,7 @@ public static class UserEndpoints
             return Results.Ok(ApiResponse.Success(null, "User deleted successfully"));
         })
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("DeleteUserById")
+        .WithName($"{namePrefix}DeleteUserById")
         .WithSummary("Delete user by userId");
 
         return group;

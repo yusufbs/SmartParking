@@ -12,7 +12,7 @@ namespace SmartParking.Api.Endpoints;
 
 public static class SiteEndpoints
 {
-    public static RouteGroupBuilder MapSiteEndpoints(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapSiteEndpoints(this RouteGroupBuilder group, string namePrefix = "")
     {
         // 11. GET /api/SmartParking/GetAllSites
         group.MapGet("/GetAllSites", async (
@@ -55,7 +55,7 @@ public static class SiteEndpoints
         })
         .CacheOutput(p => p.Expire(TimeSpan.FromMinutes(2)).Tag(CacheTags.Sites))
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllSites")
+        .WithName($"{namePrefix}GetAllSites")
         .WithSummary("Get all sites optionally filtered by clientid");
 
         // 12. GET /api/SmartParking/GetSitesByClientId
@@ -89,7 +89,7 @@ public static class SiteEndpoints
             return Results.Ok(ApiResponse.Success(sites));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetSitesByClientId")
+        .WithName($"{namePrefix}GetSitesByClientId")
         .WithSummary("Get sites belonging to a specific clientId");
 
         // 13. GET /api/SmartParking/GetSiteById
@@ -133,7 +133,7 @@ public static class SiteEndpoints
             return Results.Ok(ApiResponse.Success(site));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetSiteById")
+        .WithName($"{namePrefix}GetSiteById")
         .WithSummary("Get a single site with its nested buildings (getVBuildingss)");
 
         // 14. POST /api/SmartParking/AddClientSite
@@ -183,7 +183,7 @@ public static class SiteEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetVSiteMasterView>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("AddClientSite")
+        .WithName($"{namePrefix}AddClientSite")
         .WithSummary("Create a client site along with nested buildings");
 
         // 15. POST /api/SmartParking/UpdateSite
@@ -241,7 +241,7 @@ public static class SiteEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetVSiteMasterView>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("UpdateSite")
+        .WithName($"{namePrefix}UpdateSite")
         .WithSummary("Update site details and synchronize nested buildings");
 
         // 16. POST /api/SmartParking/DeleteSite
@@ -263,7 +263,7 @@ public static class SiteEndpoints
             return Results.Ok(ApiResponse.Success(null, "Site deleted successfully"));
         })
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("DeleteSite")
+        .WithName($"{namePrefix}DeleteSite")
         .WithSummary("Delete a site by siteId");
 
         // 17. GET /api/SmartParking/GetBuildingBySiteId
@@ -294,7 +294,7 @@ public static class SiteEndpoints
             return Results.Ok(ApiResponse.Success(buildings));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetBuildingBySiteId")
+        .WithName($"{namePrefix}GetBuildingBySiteId")
         .WithSummary("Get all buildings for a given siteId");
 
         return group;

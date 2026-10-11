@@ -12,7 +12,7 @@ namespace SmartParking.Api.Endpoints;
 
 public static class ClientEndpoints
 {
-    public static RouteGroupBuilder MapClientEndpoints(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapClientEndpoints(this RouteGroupBuilder group, string namePrefix = "")
     {
         // 7. GET /api/SmartParking/GetAllClients
         group.MapGet("/GetAllClients", async (
@@ -38,7 +38,7 @@ public static class ClientEndpoints
         })
         .CacheOutput(p => p.Expire(TimeSpan.FromMinutes(2)).Tag(CacheTags.Clients))
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllClients")
+        .WithName($"{namePrefix}GetAllClients")
         .WithSummary("Get all registered parking clients");
 
         // 8. POST /api/SmartParking/AddClient
@@ -72,7 +72,7 @@ public static class ClientEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetWClients>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("AddClient")
+        .WithName($"{namePrefix}AddClient")
         .WithSummary("Add a new client organization");
 
         // 9. POST /api/SmartParking/UpdateClient
@@ -100,7 +100,7 @@ public static class ClientEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetWClients>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("UpdateClient")
+        .WithName($"{namePrefix}UpdateClient")
         .WithSummary("Update an existing client organization");
 
         // 10. POST /api/SmartParking/DeleteClient
@@ -120,7 +120,7 @@ public static class ClientEndpoints
             return Results.Ok(ApiResponse.Success(null, "Client deleted successfully"));
         })
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("DeleteClient")
+        .WithName($"{namePrefix}DeleteClient")
         .WithSummary("Soft-delete a client by clientId");
 
         return group;

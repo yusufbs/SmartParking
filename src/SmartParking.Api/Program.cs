@@ -288,11 +288,11 @@ var versionedGroup = app.MapGroup("/api/v{version:apiVersion}/SmartParking")
     .WithApiVersionSet(versionSet)
     .WithTags("SmartParking (Versioned)");
 
-versionedGroup.MapUserEndpoints();
-versionedGroup.MapClientEndpoints();
-versionedGroup.MapSiteEndpoints();
-versionedGroup.MapFloorEndpoints();
-versionedGroup.MapParkingEndpoints();
+versionedGroup.MapUserEndpoints("V1_");
+versionedGroup.MapClientEndpoints("V1_");
+versionedGroup.MapSiteEndpoints("V1_");
+versionedGroup.MapFloorEndpoints("V1_");
+versionedGroup.MapParkingEndpoints("V1_");
 
 // Optional Database Auto-Migration / Seeding on Startup in Development
 if (app.Configuration.GetValue<bool>("Database:AutoMigrateAndSeed"))

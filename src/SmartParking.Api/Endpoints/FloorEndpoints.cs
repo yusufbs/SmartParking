@@ -12,7 +12,7 @@ namespace SmartParking.Api.Endpoints;
 
 public static class FloorEndpoints
 {
-    public static RouteGroupBuilder MapFloorEndpoints(this RouteGroupBuilder group)
+    public static RouteGroupBuilder MapFloorEndpoints(this RouteGroupBuilder group, string namePrefix = "")
     {
         // 18. GET /api/SmartParking/GetAllFloor
         group.MapGet("/GetAllFloor", async (
@@ -38,7 +38,7 @@ public static class FloorEndpoints
         })
         .CacheOutput(p => p.Expire(TimeSpan.FromMinutes(2)).Tag(CacheTags.Floors))
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetAllFloor")
+        .WithName($"{namePrefix}GetAllFloor")
         .WithSummary("Get all parking floors with buildingName and siteName");
 
         // 19. GET /api/SmartParking/GetFloorsByBuildingId
@@ -71,7 +71,7 @@ public static class FloorEndpoints
             return Results.Ok(ApiResponse.Success(floors));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetFloorsByBuildingId")
+        .WithName($"{namePrefix}GetFloorsByBuildingId")
         .WithSummary("Get all floors belonging to a specific buildingId");
 
         // 20. GET /api/SmartParking/GetFloorsBySiteId
@@ -104,7 +104,7 @@ public static class FloorEndpoints
             return Results.Ok(ApiResponse.Success(floors));
         })
         .RequireRateLimiting(RateLimitPolicies.Read)
-        .WithName("GetFloorsBySiteId")
+        .WithName($"{namePrefix}GetFloorsBySiteId")
         .WithSummary("Get all floors across all buildings for a given siteId");
 
         // 21. POST /api/SmartParking/AddFloor
@@ -133,7 +133,7 @@ public static class FloorEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetVFloors>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("AddFloor")
+        .WithName($"{namePrefix}AddFloor")
         .WithSummary("Create a new parking floor");
 
         // 22. POST /api/SmartParking/UpdateFloor
@@ -159,7 +159,7 @@ public static class FloorEndpoints
         })
         .AddEndpointFilter<ValidationFilter<GetVFloors>>()
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("UpdateFloor")
+        .WithName($"{namePrefix}UpdateFloor")
         .WithSummary("Update an existing parking floor");
 
         // 23. POST /api/SmartParking/DeleteFloor
@@ -181,7 +181,7 @@ public static class FloorEndpoints
             return Results.Ok(ApiResponse.Success(null, "Floor deleted successfully"));
         })
         .RequireRateLimiting(RateLimitPolicies.Write)
-        .WithName("DeleteFloor")
+        .WithName($"{namePrefix}DeleteFloor")
         .WithSummary("Delete a parking floor by floorId");
 
         return group;
