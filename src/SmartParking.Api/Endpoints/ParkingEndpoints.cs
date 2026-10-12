@@ -282,60 +282,52 @@ public static class ParkingEndpoints
         .WithName($"{namePrefix}AddParking")
         .WithSummary("Check in a vehicle to a parking spot");
 
-        // 31. POST /api/SmartParking/MarExit (plus /MarkExit alias)
-        Func<ExitParking, SmartParkingDbContext, SmartParkingMetrics, CacheEvictionService, ILoggerFactory, CancellationToken, Task<IResult>> handleExit =
-            async ([FromBody] ExitParking request,
-                   SmartParkingDbContext db,
-                   SmartParkingMetrics metrics,
-                   CacheEvictionService cacheEviction,
-                   ILoggerFactory loggerFactory,
-                   CancellationToken ct) =>
+        // 31. POST /api/SmartParking/MarkExit
+        group.MapPost("/MarkExit", async (
+            [FromBody] ExitParking request,
+            SmartParkingDbContext db,
+            SmartParkingMetrics metrics,
+            CacheEvictionService cacheEviction,
+            ILoggerFactory loggerFactory,
+            CancellationToken ct) =>
+        {
+            using var activity = SmartParkingMetrics.ActivitySource.StartActivity("Parking.CheckOut");
+            activity?.SetTag("parking.park_id", request.ParkId);
+
+            var logger = loggerFactory.CreateLogger("SmartParking.Parkings");
+            var parking = await db.Parkings.FirstOrDefaultAsync(p => p.ParkId == request.ParkId, ct)
+                ?? throw new EntityNotFoundException(nameof(Parking), request.ParkId);
+
+            if (parking.OutTime is not null)
             {
-                using var activity = SmartParkingMetrics.ActivitySource.StartActivity("Parking.CheckOut");
-                activity?.SetTag("parking.park_id", request.ParkId);
+                throw new ParkingConflictException($"Parking ticket #{request.ParkId} has already exited at {parking.OutTime:O}.");
+            }
 
-                var logger = loggerFactory.CreateLogger("SmartParking.Parkings");
-                var parking = await db.Parkings.FirstOrDefaultAsync(p => p.ParkId == request.ParkId, ct)
-                    ?? throw new EntityNotFoundException(nameof(Parking), request.ParkId);
+            parking.OutTime = request.OutTime == default ? DateTime.UtcNow : request.OutTime;
+            parking.ExtraCharge = (decimal)request.ExtraCharge;
 
-                if (parking.OutTime is not null)
-                {
-                    throw new ParkingConflictException($"Parking ticket #{request.ParkId} has already exited at {parking.OutTime:O}.");
-                }
+            await db.SaveChangesAsync(ct);
 
-                parking.OutTime = request.OutTime == default ? DateTime.UtcNow : request.OutTime;
-                parking.ExtraCharge = (decimal)request.ExtraCharge;
+            var durationMinutes = (parking.OutTime.Value - parking.InTime).TotalMinutes;
+            metrics.RecordCheckOut(parking.FloorId, durationMinutes, request.ExtraCharge);
+            logger.LogVehicleExited(parking.ParkId, parking.VehicleNo, parking.FloorId, durationMinutes, parking.ExtraCharge);
 
-                await db.SaveChangesAsync(ct);
+            await cacheEviction.EvictByTagsAsync([CacheTags.ParkingsActive], ct);
 
-                var durationMinutes = (parking.OutTime.Value - parking.InTime).TotalMinutes;
-                metrics.RecordCheckOut(parking.FloorId, durationMinutes, request.ExtraCharge);
-                logger.LogVehicleExited(parking.ParkId, parking.VehicleNo, parking.FloorId, durationMinutes, parking.ExtraCharge);
-
-                await cacheEviction.EvictByTagsAsync([CacheTags.ParkingsActive], ct);
-
-                return Results.Ok(ApiResponse.Success(new
-                {
-                    parking.ParkId,
-                    parking.VehicleNo,
-                    parking.InTime,
-                    parking.OutTime,
-                    DurationMinutes = Math.Round(durationMinutes, 2),
-                    TotalAmount = parking.Amount + parking.ExtraCharge
-                }, "Vehicle exit marked successfully"));
-            };
-
-        group.MapPost("/MarExit", handleExit)
-            .AddEndpointFilter<ValidationFilter<ExitParking>>()
-            .RequireRateLimiting(RateLimitPolicies.Write)
-            .WithName($"{namePrefix}MarExit")
-            .WithSummary("Mark vehicle exit and release parking spot (official spec route)");
-
-        group.MapPost("/MarkExit", handleExit)
-            .AddEndpointFilter<ValidationFilter<ExitParking>>()
-            .RequireRateLimiting(RateLimitPolicies.Write)
-            .WithName($"{namePrefix}MarkExit")
-            .WithSummary("Alias for /MarExit");
+            return Results.Ok(ApiResponse.Success(new
+            {
+                parking.ParkId,
+                parking.VehicleNo,
+                parking.InTime,
+                parking.OutTime,
+                DurationMinutes = Math.Round(durationMinutes, 2),
+                TotalAmount = parking.Amount + parking.ExtraCharge
+            }, "Vehicle exit marked successfully"));
+        })
+        .AddEndpointFilter<ValidationFilter<ExitParking>>()
+        .RequireRateLimiting(RateLimitPolicies.Write)
+        .WithName($"{namePrefix}MarkExit")
+        .WithSummary("Mark vehicle exit and release parking spot");
 
         // 32. POST /api/SmartParking/DeleteParking
         group.MapPost("/DeleteParking", async (

@@ -147,6 +147,6 @@ All endpoints are available under both `/api/SmartParking/...` and `/api/v1/Smar
 | `GET` | `/api/SmartParking/GetAllParkingByBuilding` | `?id={int}` | `ApiResponse<ParkingListItemDto[]>` |
 | `GET` | `/api/SmartParking/GetAllParkingByFloor` | `?id={int}` | `ApiResponse<ParkingListItemDto[]>` |
 | `POST` | `/api/SmartParking/AddParking` | Body: `GetVParkings` | `ApiResponse<GetVParkings>` |
-| `POST` | `/api/SmartParking/MarExit` *(+ `/MarkExit`)* | Body: `ExitParking` | `ApiResponse` |
+| `POST` | `/api/SmartParking/MarkExit` | Body: `ExitParking` | `ApiResponse` |
 | `POST` | `/api/SmartParking/DeleteParking` | `?id={int}` | `ApiResponse` |
 | `POST` | `/api/SmartParking/GetAdminAllParkings` | Body: `AllParkingSearch` | `ApiResponse<ParkingListItemDto[]>` |

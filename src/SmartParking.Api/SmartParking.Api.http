@@ -132,7 +132,7 @@ GET {{baseUrl}}/api/SmartParking/GetAllActiveParking
 Accept: application/json
 
 ###
-POST {{baseUrl}}/api/SmartParking/MarExit
+POST {{baseUrl}}/api/SmartParking/MarkExit
 Content-Type: application/json
 
 {
